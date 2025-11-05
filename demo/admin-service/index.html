@@ -18,6 +18,7 @@
       --border: #E8E2D9;
       --radius: 20px;
       --shadow: 0 6px 24px rgba(15,15,15,.06);
+      --clay: #E6764D;
     }
 
     * {
@@ -94,6 +95,82 @@
       color: var(--muted);
     }
 
+    .login-form {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin: 32px 0;
+      box-shadow: var(--shadow);
+      max-width: 400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .login-form h2 {
+      font-family: "Space Grotesk", Inter, sans-serif;
+      margin: 0 0 24px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      font-size: 16px;
+      font-family: inherit;
+      background: white;
+      transition: border-color 0.2s;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: var(--clay);
+    }
+
+    .login-btn {
+      width: 100%;
+      background: var(--clay);
+      color: white;
+      border: none;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .login-btn:hover {
+      background: #d86342;
+    }
+
+    .error-message {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      text-align: center;
+      display: none;
+    }
+
     .admin-panel {
       background: var(--card);
       border: 1px solid var(--border);
@@ -101,12 +178,28 @@
       padding: 24px;
       margin: 24px 0;
       box-shadow: var(--shadow);
+      display: none;
     }
 
     .admin-panel h3 {
       font-family: "Space Grotesk", Inter, sans-serif;
       margin: 0 0 16px;
       font-size: 18px;
+    }
+
+    .logout-btn {
+      background: var(--muted);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      float: right;
+    }
+
+    .logout-btn:hover {
+      background: #333;
     }
 
     footer {
@@ -116,6 +209,10 @@
       color: var(--muted);
       text-align: center;
       font-size: 14px;
+    }
+
+    .hidden {
+      display: none;
     }
   </style>
 </head>
@@ -135,14 +232,41 @@
     </header>
 
     <main>
-      <h1>Admin Dashboard</h1>
-      
-      <p>Simple admin area for managing PrePair internship programs.</p>
+      <!-- Login Form -->
+      <div id="login-section">
+        <h1>Admin Access</h1>
+        <p>Enter your credentials to access the admin dashboard.</p>
 
-      <div class="admin-panel">
-        <h3>Quick Actions</h3>
-        <p>Admin tools and controls will be added here as needed.</p>
-        <p>This is a placeholder admin interface.</p>
+        <div class="login-form">
+          <h2>Sign In</h2>
+          <div class="error-message" id="error-message">
+            Invalid username or password. Please try again.
+          </div>
+          <form id="login-form">
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" name="password" required>
+            </div>
+            <button type="submit" class="login-btn">Sign In</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- Admin Dashboard (Hidden by default) -->
+      <div id="admin-section" class="hidden">
+        <h1>Admin Dashboard <button class="logout-btn" onclick="logout()">Logout</button></h1>
+        
+        <p>Welcome to the PrePair admin area.</p>
+
+        <div class="admin-panel">
+          <h3>Quick Actions</h3>
+          <p>Admin tools and controls will be added here as needed.</p>
+          <p>This is a simple password-protected admin interface.</p>
+        </div>
       </div>
     </main>
 
@@ -150,5 +274,50 @@
       PrePair Admin Area - Keep it simple.
     </footer>
   </div>
+
+  <script>
+    // Admin credentials
+    const ADMIN_USERNAME = 'admin_service';
+    const ADMIN_PASSWORD = 'Shoti2422';
+
+    // Check if already logged in
+    window.addEventListener('load', () => {
+      if (sessionStorage.getItem('admin_logged_in') === 'true') {
+        showAdminPanel();
+      }
+    });
+
+    // Handle login form submission
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const errorMessage = document.getElementById('error-message');
+      
+      if (username === ADMIN_USERNAME && password === ADMIN_PASSWORD) {
+        // Successful login
+        sessionStorage.setItem('admin_logged_in', 'true');
+        showAdminPanel();
+        errorMessage.style.display = 'none';
+      } else {
+        // Show error
+        errorMessage.style.display = 'block';
+        document.getElementById('password').value = '';
+      }
+    });
+
+    function showAdminPanel() {
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('admin-section').classList.remove('hidden');
+    }
+
+    function logout() {
+      sessionStorage.removeItem('admin_logged_in');
+      document.getElementById('login-section').classList.remove('hidden');
+      document.getElementById('admin-section').classList.add('hidden');
+      document.getElementById('login-form').reset();
+    }
+  </script>
 </body>
 </html>
